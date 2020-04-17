@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>order</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <link rel='stylesheet' type='text/css' href="{% static 'restaurent/order.css' %}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+</head>
+<body style='background-color: rgb(98, 104, 101);'>
+    <button class='go btn btn-primary btn-actve btn-lg bg-success'>go home</button>
+    <script>
+    $(document).ready(function(){
+        $('.go').click(function(){
+            $(location).attr('href',"{% url 'restaurent_home' %}");
+        })
+    });
+    </script>
+    {{ filter }}
+    <div class='divOrder'>
+        {% for order in all_orders%}
+        <div class='order'>
+             <script>
+                $('.order').click(function(e){
+                    e.stopImmediatePropagation()
+                    e.preventDefault()
+                    var order={{order.order_id.id}};
+                    let url = 'users/restaurent/order/checking/?id='+order
+                    $(location).attr('href', url)
+
+                })
+            
+            
+            </script> 
+            
+                #{{ order.id}}
+                <p class=''>{{ order.food_id.foods_name }}
+                <p>{{ order.order_id.order_date }}</p>
+                <p class='pending' id='{{order.order_id.id}}'> {{ order.order_id.get_order_statuses_display }}</p>
+                
+            
+        </div>
+        {% endfor %}
+    </div>
+  
+</body>
+</html>

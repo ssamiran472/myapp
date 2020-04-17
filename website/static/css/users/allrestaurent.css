@@ -1,0 +1,24 @@
+.pagination{
+    height: 10%;
+    margin: auto;
+    margin-bottom: 1rem;
+
+}
+a.page-link.btns{
+    background-color: blue;
+    border: 0.4px solid white;
+    text: white;
+    margin: 1px;
+
+}
+.current{
+    background-color: blue;
+    border: 1px solid black;
+    text: white;
+}
+
+.current:hover{
+    background-color: blue;
+    border: 1px solid black;
+    text: white;
+}

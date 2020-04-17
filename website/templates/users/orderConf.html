@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title%}order confirmation{% endblock title%}
+{% block head_css %}
+#box-container {
+    height: 100%;
+    margin: auto;
+    width: 80%;
+    display: flex;
+  }
+
+  #box1 {
+    width: 60%;
+    height: 100%;
+  }
+
+  #box2 {
+
+    width: 40%;
+    height: 100%;
+  }
+#heading{
+    letter-spacing: 3px;
+}
+
+#orderdiv{
+    border-bottom: 1px solid #706e69;
+}
+
+.div{
+    border: 1px solid #c4c1c0;
+    border-radius: 3px;
+    padding-left: 2rem;
+    text-size: 100px;
+    height: 10%;
+}
+#user{
+    position: relative;
+    height: 60%;
+    background-color: ;
+    margin-top: 1rem;
+    border: 0.5px solid #e9ebf0;
+    border-radius: 5px;
+    box-shadow: 10px 10px 20px grey;
+}
+#botton{
+    position: absolute;
+    left:0;
+    bottom:0;
+}
+
+.heading{
+    padding: 0 0 5px 3px;
+    border-bottom: 1px solid black;
+    box-shadow: 10px 10px 50px grey;
+
+}
+
+#address{
+    height: 70%;
+    width: 100%;
+    background-color: ;
+}
+{% endblock head_css %}
+
+{% block body %}
+<div id="box-container">
+    <div id="box1" class="bg-light">
+        <h3>Secure Checkout</h3>
+        <div class="div">
+            <h4 class="text-muted text-body">{{ request.user}}</h4>
+        </div>
+        <div id="user" class="bg-light">
+            <h4 class="heading">Delivery Address</h4>
+            <div id="address">
+
+            </div>
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+              +Add new address
+            </button>
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Address</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                      <form method="get" action="">
+                          <label for="add">DELIVERY AREA</label><br>
+                          <input type="text" id="add" class='form-control' name="address" required placeholder="write your address." ><br>
+                          <input type="text" id="house" name="house_no" class='form-control' placeholder="House no./ Flat no./ Building"><br>
+                          <button type="submit" class="btn btn-primary bg-light text-danger ">Save and Proceed</button>
+                      </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    <div id="box2" class="bg-light pl-5">
+        <h5>SUMMARY</h5>
+        <div id="orderdiv">
+            <p id="heading">ORDER FROM</p>
+            <h3 class="ml-3">{{ rest_info.name }}</h3>
+            <p class="ml-3">{{ rest_info.address}}</p>
+        </div>
+        <div>
+            {% for food in food_details %}
+            <p><b>{{food.food}}</b>
+                <span class="pull-right">qty={{food.qty}}</span></p>
+            {{food.food.price}}<span class="pull-right" id="{{ food.food.id }}">
+            <script>
+                var qty={{food.qty}};
+                 qty = Number(qty);
+                 var price = {{ food.food.price}}
+                 console.log(qty, price);
+                 ids = '#' + {{ food.food.id}}
+                 $(ids).text( qty* price);
+
+
+            </script></span>
+            {% endfor%}<br>
+        </div>
+        <div>
+            GRAND TOTAL : <b class="">{{ total_price }}</b><br>
+
+            <form action="{% url 'replace_paytm' id=rest_info.id %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" id="hide" name="hidden" >
+            <button  class="btn btn-primary pull-down" id="payment" >Select Payment Method</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $("#payment").click(function(){
+        var array = []
+        {% for food in food_details %}
+            obj = {{ food.qty}} +'/'+ {{ food.food.id }}
+            array.push(obj)
+        {% endfor %}
+        console.log(array);
+        $("#hide").val(JSON.stringify(array))
+
+
+    })
+
+    if (performance.navigation.type == 1) {
+    console.info( "This page is reloaded" );
+  } else {
+    console.info( "This page is not reloaded");
+  }
+</script>
+
+
+
+
+{% endblock %}

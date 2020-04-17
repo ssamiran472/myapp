@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block head_css %}
+.container{
+    height: 100%;
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0;
+    background-color: ;
+
+
+}
+.row{
+    border-radius: 4px;
+}
+.div{
+margin-bottom: 50px;
+    background-color: #dba0ae;
+}
+img{
+    height: 100px;
+    width: 100px;
+    border-radius: 4px;
+
+}
+.nav{
+    height: 4rem;
+
+}
+.table{
+   line-height: 0.5rem;
+}
+.td{
+    margin:2rem;
+}
+a{
+    text-decoration: none;
+}
+a:hover{
+    text-decoration: none;
+}
+
+{% endblock head_css%}
+{% block body %}
+        <div class="container">
+    <h1>Your Orders</h1>
+    {%for  order in orders %}
+            <div class="row">
+                <div class="col-sm-12 bg-light nav">
+                    <table class="table">
+                      <thead>
+                        <tr >
+                          <th scope="col">ORDER PLACED:</th>
+                          <th scope="col">SHIP TO</th>
+                          <th scope="col">order#</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+
+                        <tr>
+                          <td>{{ order.order_date}}</td>
+                          <td>{{ order.user_id }}</td>
+                          <td>{{ order.id }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                </div>
+                <div class="col-sm-12 div">
+                    <table>
+                    {% for details in order_details %}
+                        {% for obj in details %}
+
+                        {% if obj.order_id.id == order.id %}
+                                <tr>
+                                    <td scope="col" class="td"><img src="{{ obj.food_id.image.url }}"></td>
+
+                                    <td scope="col" class="td">
+                                        <h3 class="text-primary">{{ obj.food_id }}</h3>
+                                        <p>Delivered from = <a href="{% url 'specification_of_restaurent' id=order.restaurents_id.id %}">{{ order.restaurents_id }}</a></p>
+                                        <p>Price = {{ obj.quentity }} x {{ obj.food_id.price }} <span class="span"> = {{ obj.total_cost }}</span></p>
+                                    </td>
+                                </tr>
+                        {% endif%}
+                         {% endfor %}
+                        {% endfor %}
+                    </table>
+                                <p>Total prices={{ order.total_price }}
+                </div>
+            </div>
+    {% endfor %}
+        </div>
+    <script>
+
+
+    </script>
+{% endblock %}

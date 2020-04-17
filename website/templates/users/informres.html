@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+{% block title%}allrest_infoaurent{% endblock title%}
+{% block head_css %} 
+
+#rating {
+  text-align: center;
+  perspective: 250px;
+  top: 40%;
+  width: 100%;
+}
+
+#rating span {
+  cursor: pointer;
+  font-size: 50px;
+  padding: 0 10px;
+  color: black;
+  opacity: .5;
+  transition: all 150ms;
+  display: inline-block;
+  transform: rotateX(45deg);
+  transform-origin: center bottom;
+}
+
+#rating span.hover {
+  color: #ff0;
+  opacity: 1;
+  transform: rotateX(0deg);
+  text-shadow: 0 0 30px #ffc;
+}
+.hover{
+    color: #ff0;
+  opacity: 1;
+  transform: rotateX(0deg);
+  text-shadow: 0 0 30px #ffc;
+}
+.cards{
+
+    margin-left: 25%;
+    margin-top: 5%;
+    border-radius: 5px;
+}
+.card-title{
+    color: red;
+}
+.card-body{
+    line-height: 25px;
+}
+
+a{
+   color: white;
+   text-decoration: none;
+   font-size: 1.3rem;
+}
+ a:hover {
+       color: #e3174a;
+       text-decoration: none;
+    }
+.info{
+   background-color: #f7f5f5;
+    width: 70%;
+    height: 40%;
+    border-radius: 4px;
+}
+.Cuisines{
+    font-size: 2rem;
+    line-height: 2rem;
+    letter-spacing: 1.4px;
+}
+dt{
+    font-size: 2.5rem;
+}
+.spanrating{
+    position: relative;
+    left: 90%;
+    height: 2rem;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 2rem;
+    width: 5rem;
+    bottom:3rem;
+}
+{% endblock head_css %}
+
+{% block body %}
+<div class='cards'>
+        
+    <div class="card mb-3" style="height: 20%; width: 70%;">
+        <img class="card-img-top" src="{{ rest_info.restaurent_Main_img.url}}" alt="Card image cap">
+        <div class="card-body mb-4 ">
+            <h2 class="card-title" >{{ rest_info.name }}</h2><div class="spanrating bg-success text-light">{{ rest_info.avarage_ratings }}/5</div>
+            <p class="Cuisines">{{ rest_info.address }},{{ rest_info.pincode}}</p>
+            <a href="#reviews"><button class="btn btn-primary" href="#reviews"><i class='fas fa-pencil-alt'></i> Add a Review</button></a>
+
+            <button class="btn btn-primary" id="rate"><i class="fa fa-star-o"></i>Rate</button>
+
+            <div id="rating">
+                <a href="{% url 'rate' id=rest_info.id rate=1 %}"><span>★</span></a>
+                <a href="{% url 'rate' id=rest_info.id rate=2 %}">  <span>★</span></a>
+                <a href="{% url 'rate' id=rest_info.id rate=3 %}">  <span>★</span></a>
+                <a href="{% url 'rate' id=rest_info.id rate=4 %}">  <span>★</span></a>
+                <a href="{% url 'rate' id=rest_info.id rate=5 %}">  <span>★</span></a>
+                <span id="text">0</span>
+                <span id="clear">clear</span>
+            </div>
+        </div>
+    </div>
+
+        <div class="btn-group" style="height: 70px; width: 70%;"  role="group" aria-label="Basic example">
+            <button type="button" class="btn btn-primary active"><a href="{% url 'specification_of_restaurent' id=rest_info.id %}">Overview</a></button>
+
+            <button type="button" class="btn btn-secondary"><a href="">Reviews({{ rest_info.total_reviews }})</a></button>
+            <button type="button" class="btn btn-secondary"><a href="">Photos</a></button>
+        </div>
+       
+        
+
+        <div class='info  mb-3 mt-3'>
+            <div class='row mt-6 container row-cols-2'>
+                <div class='column-sm-3'>
+                
+                    <dl>
+                        <dt>Phone numbers</dt>
+                        <dd class='container Cuisines'>{{ rest_info.mob_no}}</dd>
+                        
+                    </dl>  
+                </div>
+                <div class='column-sm-3'>
+                    <dt>Address</dt>
+                        <dd class='container Cuisines'>-{{ rest_info.address}}</dd>
+                </div>
+            
+            
+            
+                <div class='column-sm-3'>
+                    <dt>Cuisines</dt>
+                       <div class='Cuisines'> 
+                            <dd class='text-danger container'>
+                       {% for cousiness in category%}
+                            {{ cousiness.name}},
+                        {% endfor %}
+                            </dd>
+                        </div>
+                </div>
+                <div class="column-sm-3">
+                    
+                    <dt>Opening hours </dt><small class='container text-success'>open now</small>
+                        <dd class='container Cuisines'>9am to 11pm</dd>
+
+                </div>
+            </div>
+        <a href="{% url 'order' %}"><button class='bg-success rounded-lg btn-lg btn-primary active btn-block'>order now</button></a>
+        </div>
+</div>
+            
+<div id="reviews" class="cards">
+    <h3>Write your Reviews</h3>
+    <form method="post" action="{% url 'reviews' id=rest_info.id %}">
+        {% csrf_token %}
+          <div class="input-group flex-nowrap" style="width: 70%;">
+
+                <input type="text" class="form-control" required name="text" placeholder="Help other foodies by shearing your review of {{ rest_info.name }}">
+          </div><br>
+          <input type="submit" value="Add Your Reviews" class="bg-success btn btn-primary btn-m mt-3">
+    </form>
+    <div class="card w-75">
+        <div class="card-body">
+            <h5 class="card-title">Reviews</h5>
+            <p>{% with reviews|first as name %}
+                <b class="text-danger">{{ name.coustomer_id }}</b>
+                {% endwith %} and <b class="text-danger">{{ reviews|length }} others</b> have reviewed this place
+            </p>
+         </div>
+    </div>
+    {% for review in reviews %}
+    <div class="card w-75">
+        <div class="card-body">
+        <h5 class="card-title text-dark">{{ review.coustomer_id }}</h5>
+        <small>{{ review.date }}</small>
+        <p>{{ review.comment }}</p>
+        </div>
+        <form method="post" action="">
+            <input type="text" required style="width: 90%; margin-left: 4%;" placeholder="Write a comment">
+            <button type="submit pull-right" class="text-primary"><i class="fa fa-send"></i></button>
+        </form>
+    </div>
+    {% endfor %}
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+
+function StarRating() {
+  this.init();
+};
+
+
+StarRating.prototype.init = function() {
+  this.stars = document.querySelectorAll('#rating span');
+  for (var i = 0; i < 5; i++) {
+    this.stars[i].setAttribute('data-count', i+1);
+    this.stars[i].addEventListener('mouseenter', this.enterStarListener.bind(this));
+  }
+  document.querySelector('#rating').addEventListener('mouseleave', this.leaveStarListener.bind(this));
+};
+
+StarRating.prototype.enterStarListener = function(e) {
+  this.fillStarsUpToElement(e.target);
+};
+
+
+StarRating.prototype.leaveStarListener = function() {
+  this.fillStarsUpToElement(null);
+};
+
+StarRating.prototype.fillStarsUpToElement = function(el) {
+  for (var i = 0; i < this.stars.length; i++) {
+    if (el == null || this.stars[i].getAttribute('data-count') > el.getAttribute('data-count')) {
+      this.stars[i].classList.remove('hover');
+    } else {
+      this.stars[i].classList.add('hover');
+    }
+  }
+};
+
+
+new StarRating();
+
+$('#rating').hide()
+$('#rate').click(function(){
+    $("#rating").toggle()
+})
+$('span').click(function(){
+    var value = $(this).attr('data-count');
+     var text = 'rated '+value
+    $('#rate').text(text)
+     $("#rating").hide()
+
+})
+
+$('span').mouseover(function(){
+    var value = $(this).attr('data-count');
+
+    $('#text').text(value)
+})
+$('span').mouseout(function(){
+        var value = $(this).attr('data-count');
+
+    $('#text').text(0)
+
+}
+)
+<!--$('a').click(function(){-->
+<!--    var value = $('#text').text()-->
+<!--    localStorage.setItem('value', JSON.stringify(value));-->
+
+
+<!--})-->
+<!--if (JSON.stringify(localStorage.getItem('value'))){-->
+<!--    var x= JSON.stringify(localStorage.getItem('value'))-->
+<!--    var text = 'rated '+x[3]-->
+<!--    $("#rate").text(text)-->
+<!--}-->
+
+
+
+
+$("#clear").click(function(){
+    $('#rate').text('Rate')
+
+
+})
+</script>
+{% endblock %}

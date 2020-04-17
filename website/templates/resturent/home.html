@@ -1,0 +1,109 @@
+{% extends 'resturent/base2.html'%}
+{% block head_css %}
+.img{
+  width: 50%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.desc{
+  width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+}
+h1{
+  font-size: 5rem;
+  text-align: center;
+}
+{% endblock head_css %}
+{% block body%}
+    <!--nav bar degine end here.. -->
+    <div>  
+      <img src={{users.restaurent_Main_img.url}} class='img'>
+    </div>
+    <div class='desc'>
+    <div class = 'container bg-warning'>
+      <div style="height:500px, width:800px">
+          <h1>{{ users.name }}</h1>
+      </div>
+    </div>
+    <div class='container' style="height:500px, width:800px">
+      <a href="{% url 'restaurent_home' %}"><button type="button" class="btn btn-secondary" name='overview'> Overview</button></a>
+      <a href="{% url 'restaurent_review' %}"><button type="button" class="btn btn-secondary" name='reviews'>Reviews</button></a>
+      <a href="{% url 'restaurent_home' %}"><button type="button" class="btn btn-secondary" name='photos'>Photos</button></a>
+    </div>
+
+    <div class='container'>
+    <div class="cont">
+      <div class='d1'>
+        <h3>Phone number</h3>
+        <p class="text-success">{{ users.mob_no }}</P>
+        <h3>Cuisines</h3>
+        <p>for delete any cuisines click on it.<br>
+          {% for cuisine in cuisines%}
+              <a href="{% url 'delete_category' id=cuisine.id %}">{{cuisine}}</a>
+          {% endfor %}
+        </p>
+        <form method='post' action="{% url 'category' %}">
+          {% csrf_token %}
+          <input type='text' name='cuisines'>
+          <button type='submit' name='edit'>add</button>
+        </form>
+      </div>
+        
+      <div class="d2">
+          <h3>Opening hours</h3>
+              7:30am to 10pm
+          <h3>  Address</h3>
+          <p class='text-danger'> {{ users.address}}</p>
+      </div>
+      <div class='d3'>
+
+      </div>
+      <div class='d4'></div>
+    </div>
+    
+    </div>
+
+    
+    <div class="container">
+  <h2>Modal Example</h2>
+  <!-- Trigger the modal with a button -->
+  <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Add menu</button>
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">fill this form approprietly</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form method='post' action="{% url 'addfood' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ foods_form.as_p}}          
+            <input type='submit' value= 'add'>
+          
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  
+</div>
+</div>
+
+
+
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    {% endblock %}

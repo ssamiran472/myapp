@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+{% block title%}allrestaurent{% endblock title%}
+{% block head_css %} 
+
+
+    .conts{
+        margin-top: 10px;
+        border-bottom: 1px solid #615f5f;
+        margin-bottom: 5px;
+        display:grid;
+        background-color: ;
+        border-radius: 3px;
+        grid-template-columns: 40% 60%;
+        grid-template-rows: 100%;
+    } 
+    .imgclass{
+        height: 90%;
+        width: 100%;
+    } 
+     img{
+        
+        border-radius: 5px;
+         margin-left: 10px;
+        margin-top: 5px;
+    
+    } 
+    .desc{
+        background-color: ;
+
+        margin-left: 25px;
+    }  
+    .cont{
+        
+        border: 1px solid #878d96;
+        border-radius: 5px;
+        margin: 0px 0px 15px 20px;
+        width: 100%;
+        background-color: #ffffff;
+        margin-top: 5px;
+        display: grid;
+        grid-template-columns: 100%;
+        grid-template-rows: 50% 50%;
+    }
+    span{
+        text-align: right;
+    }
+    a{  line-height: 1.4285em;
+        font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+        color: #33373D;
+        text-decoration : none;
+        font-size : 13px!important;
+    }
+    a:hover {
+        color: #d92946;
+        text-decoration: none;
+    }
+    .right{
+        float: right;
+    }  
+    .right:hover {
+        color: #33373D;
+    }
+
+
+    .spanrating{
+    position: relative;
+    left: 210%;
+    height: 2.5rem;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 1.8rem;
+    width: 3.5rem;
+    bottom:8rem;
+}
+
+.border{
+    margin-left: 18%;
+}
+{% endblock head_css %}
+
+{% block body %}
+
+
+    <div class='container'>
+        <div class='row '>
+            
+            <div class="col-2 border rounded-lg ">
+                <h4>Filter</h4>
+                <h5>sort by</h5>
+                    <p><a href="{% url 'ratings_hight_to_low' %}">ratings</a>-high to low</p>
+                    <p><a href="">cost</a>-(high to low)</p>
+                    <p><a href="">cost</a>-(low to high)</p>
+                    <p><a href="">Recently add</a>-(new to old)</p>
+                <h5>Location</h5>
+            
+                      
+                    {% for rest in locality %}
+                        <a href="{% url 'locality' locality=rest.locality %}">
+                            <div>
+                                {{ rest.locality }}
+                                <span class='right'>{{ rest.num_res }}</span>
+                            </div>
+                        </a>
+                    {% endfor %}
+                     
+                            
+                <h5>Cuisine</h5>
+                    {% for cat in cousines %}
+                        <a href="{% url 'cuisines' name=cat.name  %}">
+                            <div>
+                                {{ cat.name }}
+                                <span class='right'>{{ cat.num_res }}</span>
+                            </div>
+                        </a>
+                    {% endfor %}
+            </div>
+
+            <div class='col-6'>
+            {% if allrestaurents == '0' %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        {{ no_result }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+            {% else %}
+                {% for rest in allrestaurents %}
+                    <div class='cont'>
+                        <div class='conts'>
+                            <div class='imgclass'>
+                                <img src="{{rest.restaurent_Main_img.url}}" style="height:80%; width: 80%;">
+                            </div>
+                            <div class='desc'>
+                                <a href="{% url 'specification_of_restaurent' id=rest.id %}"> <h1 style="font-size: 2rem;">{{rest.name}}</h1>  </a>
+                                <p>
+                                    {{rest.locality}}<br>
+                                    {{rest.address}}
+                                    {{ rest.category.name }}
+                                </p>
+                            </div><div class="spanrating bg-success text-light">{{ rest.avarage_ratings }}</div>
+                        </div>
+                        <div>
+                            <table>
+                                <tr>
+                                <td>CUISINES:</td>
+                                <td>{% for category in categorys %}
+                                    {% if category.restaurent.id == rest.id %}
+                                        {{ category.name}},
+                                    {% endif %}
+                                {% endfor %}</td>
+                                <tr>
+                                <tr>
+                                <td>HOURS:</td>
+                                <td></td>
+                                </tr>
+                            </table>
+                            <footer>
+                                <div class="row ">
+                                    <div class="col-sm-6">
+                                        <button type="button" class="btn btn-block rounded-lg btn-lg  btn-primary active" data-toggle="modal" data-target="#exampleModal{{rest.id}}">
+                                          Call
+                                        </button>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="exampleModal{{rest.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                          <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                              <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLabel">{{rest.name}}</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                  <span aria-hidden="true">&times;</span>
+                                                </button>
+                                              </div>
+                                              <div class="modal-body">
+                                                {{rest.mob_no }}
+                                              </div>
+
+                                            </div>
+                                          </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+<!--                                        <a href="{% url 'order' %}"><button class='bg-success btn-block rounded-lg btn-lg  btn-primary active'>order now</button></a>-->
+                                        <button id='order{{rest.id}}' class='btn bg-success btn-block rounded-lg btn-lg  btn-primary active'>order now</button>
+                                    </div>
+
+                                </div>
+                            </footer>
+                        </div>
+                    </div>
+
+                {% endfor %}
+                {% endif %} 
+            </div>
+        </div>
+
+        <div class="pagination col-12 col-sm-4 justify-content-center">
+            <nav aria-label="Page navigation example">
+              <ul class="pagination">
+                  {% if allrestaurents.has_previous %}
+                    <li class="page-item ">
+                      <a class="page-link btns" href="?page=1" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                      </a>
+                    </li>
+                    <li class="page-item "><a class="page-link btns" href="?page={{ allrestaurents.previous_page_number }}">{{ allrestaurents.previous_page_number }}</a></li>
+                  {% endif %}
+                  <li class="page-item "><div class="current text-light page-link">{{ allrestaurents.number }}</div></li>
+
+                  {% if allrestaurents.has_next %}
+                    <li class="page-item "><a class="page-link btns" href="?page={{ allrestaurents.next_page_number }}">{{ allrestaurents.next_page_number}}</a></li>
+                    {% if allrestaurents.next_page_number != allrestaurents.paginator.num_pages %}
+                        <li class="page-item ">
+                          <a class="page-link btns" href="?page={{ allrestaurents.paginator.num_pages }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                          </a>
+                        </li>
+                    {% endif %}
+                  {% endif %}
+              </ul>
+            </nav>
+        </div>
+    </div>
+<script>
+    $(".btn").click(function(){
+        var id = this.id.toString();
+
+        $.ajax({
+            url : '{%url "testing" %}',
+            data: {
+                'id': id
+            },
+            dataType: 'json',
+            success: function(data){
+            console.log(data);
+            if( data.is_success){
+                console.log('yes');
+                $(location).attr('href',"{% url 'order' %}")
+
+            }
+            }
+        })
+
+
+
+    })
+
+
+</script>
+{% endblock %}

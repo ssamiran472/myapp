@@ -1,0 +1,139 @@
+{% extends 'resturent/base2.html' %}
+
+{% block head_css %}
+.order{
+    background-color: green;
+    height: inherit;
+    width: 50%;
+    margin: auto;
+    border-radius: 5px;
+}
+
+.home{
+    position: fixed;
+    top: 20%;
+    right:0;
+}
+{% endblock head_css %}
+
+{% block body%}
+<div id='mainDiv'>
+    
+</div>
+<a href='{% url "restaurent_home" %}'><button class='home btn btn-primary bg-success'> Home </button></a>
+<button id='click'>click</button>
+<script>
+{% comment %} document.getElementById('click').addEventListener('click', get_jsons); {% endcomment %}
+function go_and_take_json(){
+
+    xml=new XMLHttpRequest();
+    xml.open('GET', '{% url "check_new_order_json" %}', true);
+
+    xml.onload= function(){
+        if(this.status ==200){
+            var data= JSON.parse(this.responseText);
+            var foods= JSON.parse(data.foods);
+            var order_details = JSON.parse(data.orderdetails);
+            var order = JSON.parse(data.order);
+            var user = data.user;
+            var user_name, food_name, food_img_url, total_price, quentity;
+            var htmls='';
+            for(var a in order){
+                var food_htmls='';
+                var order_obj = order[a];
+                total_price = order[a].fields.total_price;
+                for(var i in order_details){
+                    obj = order_details[i]; 
+                    if(order_obj.pk == obj.fields.order_id){
+                        quentity = order_details[i].fields.quentity;
+                        
+                        for(var x=0; x < foods.length; x++){
+                            var food_obj = foods[x].pk;
+                            if(obj.fields.food_id == food_obj){
+                                food_name = foods[x].fields.foods_name;
+                                food_img_url = '/media/' + foods[x].fields.image;
+                                break;
+                            }
+                        }
+                        food_htmls += '<p>'+food_name+ '</p>'+
+                                        '<img src='+ food_img_url +' style="height:100px; width:100px; margin-left: 5px;">'+
+                                        "<p> quentity="+quentity+"</p>";
+                    }        
+                }
+
+                for(var a=0; a<user.length; a++){
+                    var users = user[a];
+                    if(order_obj.fields.user_id == users[1]){
+                        user_name = users[0];
+                        break;
+                    }
+
+                }
+                var button ='';
+                if(order_obj.fields.order_statuses=='O'){
+                    button += "<button class='accept btn btn-m text-light bg-success' id='orderss"+order_obj.pk+"'>accept</button><button class='decline btn btn-m text-light bg-danger' id='decline"+order_obj.pk+"'>decline</button>";
+                }
+                else if(order_obj.fields.order_statuses=='A&P'){
+                    button += "<button class='ready btn btn-primary' id='orderss"+order_obj.pk+"'>ready</button>";
+                }
+                 
+                htmls += "<div class='order' >"+
+                    "<p class='order_id'>order  id#"+ order_obj.pk+"</p>"+
+                    food_htmls+
+                    "<p>total price: "+ total_price+"</p>"+
+                    "<p> orderd from: "+ user_name+"</p>"+button+"</div>";
+            } 
+            document.getElementById('mainDiv').innerHTML= htmls;
+        }
+    }
+    xml.send();
+}
+setInterval(function(){ go_and_take_json(); }, 3000);
+go_and_take_json();
+
+$("div").on('click','.order .accept', function(e){
+    e.stopPropagation();
+    var ids = this.id.toString();
+    var xml = new XMLHttpRequest();
+    var url= "accept/decline/?id="+ids
+    xml.open('GET', url, true);
+    xml.onload = function(){
+        if(xml.status ==200){
+            console.log(this.responseText);
+            document.getElementById(ids).innerHTML= "<button class='ready btn btn-primary' id='"+ids+"'>ready</button>";
+        }
+    }
+
+
+    xml.send();
+});
+
+$("div").on('click', '.order .decline', function(e){
+    e.stopPropagation();
+    var ids = this.id.toString();
+    var xml = new XMLHttpRequest();
+    var url= "accept/decline/?id="+ids
+    xml.open('GET', url, true);
+    xml.send();
+});
+
+$("div").on('click', '.order .ready', function(e){
+    e.stopPropagation();
+    var id=this.id.toString();
+    var url= 'food-prepared/?id='+ id;
+    var xml = new XMLHttpRequest();
+    xml.open('GET', url, true);
+    xml.send();
+    xml.onload= function(){
+        if(xml.status==200){
+            $('button').hide();
+        }
+    }
+});
+
+
+</script>
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+{% endblock %}

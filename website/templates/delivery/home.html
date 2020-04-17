@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> home</title>
+    <!--bootstrap link-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <!-- font awsome link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <style>
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 53px;
+  height: 28px;
+  margin-top: 4px;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 1px;
+  bottom: 2px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+    </style>
+</head>
+<body>
+    {% load static %}
+    <!--navbar degine start here. -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark text-light">
+        <h3 class="navbar-brand" href="#"><i>Last Minute Labor</i></h3>
+        
+        <h4 class="navbar-brand">Start Duty  off  
+        {% if is_in_duty == True %}
+        
+        <label class="switch" >
+            <input type="checkbox" checked id='switch'>
+            <span class="slider round"></span>
+        </label>
+        {% else %}
+        <label class="switch">
+            <input type="checkbox" id='switch'>
+            <span class="slider round"></span>
+        </label>{% endif %}  on
+        </h4>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="dropdown" style="margin-left: 90%">
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-user-circle" style="font-size:20px;"></i>   {{ user.first_name }}
+                </a>
+
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    <a class="dropdown-item" href="#">profile</a>
+                    <a class="dropdown-item" href="#">All Order History</a>
+                    <a class="dropdown-item" href="{% url 'logout' %}">Log out</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!--nav bar degine end here.. -->
+    <div class='cont'>
+        <h1> Ongoing Orders</h1>        
+        <div id='order'></div>
+    </div>
+<script>
+document.getElementById('switch').addEventListener('click', go);
+function go(){
+   // e.stopPropagation;
+    var switchs = document.getElementById('switch');
+    var checkBox = document.getElementById("switch");
+        
+     if (checkBox.checked == false){
+        var url= 'http://127.0.0.1:8000/delivery/get/new-delivery/';
+        var xml = new XMLHttpRequest();
+        xml.open('GET',url, true);
+        xml.send();
+        xml.onload=function(){
+            if(xml.status == 200){
+                if(xml.responseText == 'nothing'){
+                    var goto_this_location = '{% url "out_duty" %}'
+                    $(location).attr('href',goto_this_location);
+                }
+                else{
+                    alert('you had take an order. So you can not logout.');
+                }
+            }
+        }
+    }
+    else{
+        var goto_this_location = '{% url "duty" %}';
+        $(location).attr('href',goto_this_location);
+    }
+}
+
+
+
+
+function get_order_json(){
+    var xml = new XMLHttpRequest(); 
+    var url='http://127.0.0.1:8000/delivery/get/new-delivery/';
+    xml.open('GET', url, true);
+    xml.send();
+    xml.onload = function(){
+        if(xml.responseText != 'nothing'){
+            var data = JSON.parse(xml.responseText); 
+            var order = JSON.parse(data.all_order);
+            var address = JSON.parse(data.id);
+            var restaurent = JSON.parse(data.restaurent);
+            var html='';
+            var orders="<p>Order id# <span id='order_id'>"+ order[0].pk+ "</span></p>";
+            var paid = "<p>payment: paid</p>";    
+            var total_items ="<p> total items: "+ data.items_no+" </p>";
+            var rest = "<p> take it from <b>"+ restaurent[0].fields.name+" ,mobile:"+restaurent[0].fields.mob_no +"</b></p>";
+            var delivery_add ='';
+            if (address.length !=0){
+                delivery_add += "<p> Delivery Address: <br> locality:" +address[0].fields.locality+"pin: "+address[0].fields.pin+"</p>";
+            }
+            button='';
+            if(order[0].fields.order_statuses == 'P&D'){
+                button += "<button class='deli btn btn-primary btn-m bg-success'>delivred</button>";
+            }
+            else{
+                button += "<button id='pick' class='pickup btn btn-primary btn-m bg-success'>Pick up</button>";
+            }
+            html += orders + paid+ total_items + delivery_add + rest + button;
+            document.getElementById('order').innerHTML = html; 
+        }
+        else{
+            document.getElementById('order').innerHTML = '';
+        }
+    }
+};
+setInterval(function(){ get_order_json(); }, 3000);
+get_order_json();
+
+
+$("div").on('click', '#order .pickup', function(e){
+    e.stopPropagation;
+    var order_id = $('#order_id').text();
+    order_id = "pickup" + order_id;
+    var url = '{% url "order_pickup" %}' + '?id=' + order_id;
+    var xml = new XMLHttpRequest();
+    xml.open('GET', url, true);
+    xml.send();
+    xml.onload=function(){
+        if(status == 200){
+            $('#pick').html('delivred');
+        }
+    }
+})
+
+$("div").on('click', '#order .deli', function(e){
+    e.stopPropagation;
+    var id=document.getElementById('order_id').textContent;
+    id = 'deli' + id;
+    var url = "{% url 'order_success' %}" + '?id='+ id;
+    var xml = new XMLHttpRequest();
+    xml.open('GET', url, true);
+    xml.send(); 
+    xml.onload = function(){
+        if(xml.status == 200){
+            document.getElementById('order').innerHTML = '<div class="alert alert-success"><strong>Success!</strong> This alert box could indicate a successful or positive action.</div> ';
+            
+        }
+    }
+
+});
+
+
+
+
+</script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    
+    
+    </body>
+</html>

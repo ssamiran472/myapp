@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+{% load static %}
+ <script
+  src="https://code.jquery.com/jquery-3.4.1.js"
+  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+  crossorigin="anonymous"></script>
+{% block title%}orders{% endblock title%}
+{% block head_css %} 
+    .card-body, .card{
+        height: auto;
+        padding: 0.2rem;
+    }
+    .container{
+        margin-left: 28%;
+    }
+    .row{
+        
+        justify-content: center;
+    }
+    p{
+        font-size: 13px;
+    }
+    .apper{
+        display: none;
+    }
+    .show{
+        display: inline;
+    }
+    .name{
+        text-transform: capitalize;
+    }
+    .count{
+        display: inline-block;
+    }
+    ul li{
+        list-style-type: none;
+        margin-left: none;
+    }
+
+    .card-body p{
+        margin-0;
+
+    }
+    .bottom{
+         position: absolute; 
+                bottom: 0px;
+    }
+    .fixedElement {
+    background-color: #c0c0c0;
+    position:relative;
+    top:0;
+    
+    width:100%;
+    z-index:100;
+    }
+    .subtotal{
+        position: absolute;
+        height:19%; 
+        width:100%;
+        left:0;
+        bottom:3%;
+    }
+    .span{
+        height: inherit;
+        width: 5px;
+        color: white;
+    }
+#list{
+    padding-inline-start: 0px;
+    font-size: 12px;
+}
+.button{
+    position: absolute;
+    top: 5px;
+    right: 14px;
+}
+.name{
+    
+    width: 80%;
+    position: relative;
+}
+.buttons{
+    position: relative;
+    bottom: 35px;
+    left: 215px;
+}
+span.spans{
+    position: relative;
+    bottom: 25px;
+    left: 4px;
+    font-size: 15px;
+}
+
+
+{% endblock head_css %}
+
+{% block body %}
+    <div class='row'  style='height:100%;'>
+        <div class='col col-sm-8 cousin'>
+            <div class="card mb-3 ">
+                
+                <div class="mb-4 col-sm-12">
+                    <h2 class="card-title text-info" >{{ rest_info.name }}</h2>
+                    {{ rest_info.address }},{{ rest_info.pincode}}
+                </div>
+            </div>
+
+            <div class='col-sm-12 ' >
+                {% for cat in category%}          
+                    <dl>
+                        <dt> {{ cat.name }} </dt>
+             
+                
+                    <dd class="list-group list-group-flush">
+                    {% for food in foods %}
+                        {% if food.category.id == cat.id %}
+                            <ul>
+                                <li >    
+                                    <div class="card " id='addpk{{ food.id }}' >
+                                        <div class="card-body row">
+                                            <div class="col-4 col-sm-2">
+                                                <img src="{{ food.image.url }}" style="height:100px; width:100px;">
+                                            </div>
+                                            <div class="col-8 col-sm-10">
+                                                <p id='name{{ food.id }}'>{{ food.foods_name }}</p>
+                                                <p id='price{{ food.id }}'><i class='fa fa-rupee'></i>{{ food.price}}</p>
+                                                <p>{{ food.description}}</p>
+                                                <div id='addpk{{ food.id }}s' class='button pull-right bg-success'><button  class="btn btn-primary bg-light text-success border-success btn-sm " >ADD</button></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        {% endif %}
+
+                    {% endfor %}
+                    </dd>
+                    </dl>
+                {% endfor %}
+            </div>
+        </div>
+        <div id='order' class='col bg-light col-sm-3 fixedElement' style='height:inherit;' >
+           <h5> Your order</h5>
+             
+           <ul  id='list' name='list'>
+
+           </ul>
+
+           <form id="orders" method ='post' action="{% url 'orders' id=rest_info.id %}">
+                {% csrf_token %}
+                <input type='hidden' id='orderitems' name='ordritems'>
+                <input type='hidden' id='orderquentity' name='orderqty'>
+                 <div class='subtotal'>
+                     <p class='text-secoendry'>Subtotal</p><span id='Totalmoney'></span>
+                    <button type="submit" class="btn btn-primary btn-lg btn-block" id='confirm' >Continue</button>
+                 </div>
+            </form>
+        </div>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+<script>
+console.log('hi')
+$(document).ready(function(){
+    $('.card').click(function(){
+        var foodid=this.id.toString();
+        var addid = foodid+'s';
+        var unic=addid.match(/(\d+)/)[0];
+        var name = '#name' + unic;
+        var price = "#price" + unic;
+        names = $(name).text();
+        prices = $(price).text();
+        var food_info = {
+            qty : 0,
+            name : names,
+            price : prices
+        };
+        if (localStorage.getItem(foodid) == null){
+            localStorage.setItem(foodid, JSON.stringify(food_info));
+
+            item_no = JSON.parse(localStorage.getItem(foodid.qty)) +1;
+
+            var objects= JSON.parse(localStorage.getItem(foodid));
+            objects.qty = item_no;
+            localStorage.setItem(foodid, JSON.stringify(objects));
+        }else{
+
+            var objects= JSON.parse(localStorage.getItem(foodid));
+            item_no = objects.qty + 1;
+            objects.qty = item_no;
+
+            localStorage.setItem(foodid, JSON.stringify(objects));
+        }
+        var foods=Object.keys(localStorage);
+
+        document.getElementById(addid).innerHTML = "<button class='btn text-light border-success btn-sm minus' id= 'minus" + unic+ "' >-</button><span class='span bg-success' id='value"+ unic+"'>"+ item_no +"</span><button class='btn text-light border-success btn-sm plus' >+</button>"
+        document.getElementById('list').innerHTML='';
+        var money = 0;
+
+       for (var food=0; food<foods.length; food++){
+
+            var number=foods[food].match(/(\d+)/)[0];
+            keys_info = JSON.parse(localStorage.getItem(foods[food]));
+            money += Number(keys_info.qty)* Number(keys_info.price);
+            //    name_list = "<li class='food' id='food"+ number +"'>"+ keys_info.name + "<button class='btn text-success border-success btn-sm  minus' id= 'minus" + number+ "s' >-</button><span class='span bg-success' id='value"+ unic+"'>"+ keys_info.qty +"</span><button class='btn text-success border-success btn-sm plus' id= 'plus" + number+ "' >+</button><br>"+keys_info.price+"</li>"-->
+            name_list = `<li class='food' id='food${number}'><div class=' name col-sm-8'> ${keys_info.name}</div> <div class='buttons'><button class='btn text-success border-success btn-sm  minus' id= 'minus${number}s'>-</button><span class='span bg-success' id='value${unic}'>${keys_info.qty}</span><button class='btn text-success border-success btn-sm plus' id= 'plus${number}' >+</button></div> <span class='spans'>${keys_info.price}</span></li>`
+            document.getElementById('list').innerHTML += name_list;
+       }
+       $('#Totalmoney').text(money);
+       $("#orders").show();
+    })
+
+    // minus from food list button click
+
+    $('.card').on('click', 'button.minus', function(e){
+         e.stopPropagation();
+         var minus_id = this.id.slice(5, );
+         var food_id = 'addpk'+ minus_id;
+         var money = 0;
+         var objects= JSON.parse(localStorage.getItem(food_id));
+         item_no = objects.qty - 1;
+         objects.qty = item_no;
+         localStorage.setItem(food_id, JSON.stringify(objects));
+         if (item_no == 0){
+              var li_id = '#food' + minus_id;
+              document.getElementById('addpk'+ minus_id+'s').innerHTML = "<button  class=' btn btn-primary bg-light text-success border-success btn-sm' >ADD</button>"
+              localStorage.removeItem(food_id);
+              $(li_id).hide(100);
+              var item = Object.keys(localStorage);
+              for(var i=0; i < item.length; i++){
+                  keys_info = JSON.parse(localStorage.getItem(item[i]));
+                  money += Number(keys_info.qty) * Number(keys_info.price);
+              }
+        }
+       else{
+            document.getElementById('value'+ minus_id).innerHTML = item_no;
+            var foods=Object.keys(localStorage);
+            document.getElementById('list').innerHTML='';
+
+            for (var food=0; food<foods.length; food++){
+                var number=foods[food].match(/(\d+)/)[0];
+                keys_info = JSON.parse(localStorage.getItem(foods[food]));
+                money += Number(keys_info.qty)* Number(keys_info.price);
+                name_list = `<li class='food' id='food${number}'><div class=' name col-sm-8'> ${keys_info.name}</div> <div class='buttons'> <button class='btn text-success border-success btn-sm minus ' id= 'minus${number}s' >-</button><span class='span bg-success' id='value${number}'> ${keys_info.qty}</span><button class='btn text-success border-success btn-sm plus' id= 'plus${number}s' >+</button></div><span class='spans'>${keys_info.price}</span></li>`
+                document.getElementById('list').innerHTML += name_list;
+            }
+       }
+           if(money > 0){$('#Totalmoney').text(money);}
+           else{$('#Totalmoney').text(0);$("#orders").hide();}
+
+
+    })
+
+  // minus from your order
+    $('ul').on('click', 'button.minus', function(e){
+        e.stopPropagation();
+       var minus_id = this.id.slice(5, ).match(/(\d+)/)[0];
+       var food_id = 'addpk'+ minus_id;
+       var money = 0;
+       var objects= JSON.parse(localStorage.getItem(food_id));
+            item_no = objects.qty - 1;
+            objects.qty = item_no;
+           localStorage.setItem(food_id, JSON.stringify(objects));
+       if (item_no == 0){
+           var li_id = '#food' + minus_id;
+           document.getElementById('addpk'+ minus_id+'s').innerHTML = "<button  class=' btn btn-primary bg-light text-success border-success btn-sm' >ADD</button>"
+           localStorage.removeItem(food_id);
+            $(li_id).hide(100);
+            var item = Object.keys(localStorage);
+            for(var i=0; i < item.length; i++){
+                keys_info = JSON.parse(localStorage.getItem(item[i]));
+                money += Number(keys_info.qty) * Number(keys_info.price);
+            }
+       }
+       else{
+            document.getElementById('value'+ minus_id).innerHTML = item_no;
+            var foods=Object.keys(localStorage);
+            document.getElementById('list').innerHTML='';
+
+            for (var food=0; food<foods.length; food++){
+                var number=foods[food].match(/(\d+)/)[0];
+                keys_info = JSON.parse(localStorage.getItem(foods[food]));
+                money += Number(keys_info.qty)* Number(keys_info.price);
+                name_list = `<li class='food' id='food${number}'><div class=' name col-sm-8'>${keys_info.name}</div> <div class='buttons'> <button class='btn text-success border-success btn-sm minus' id= 'minus${number}s' >-</button><span class='span bg-success' id='value${number}'>${keys_info.qty}</span><button class='btn  text-success border-success btn-sm plus' id= 'plus${number}s' >+</button></div><span class='spans'>${keys_info.price}</li>`
+                document.getElementById('list').innerHTML += name_list;
+            }
+       }
+       if(money > 0){$('#Totalmoney').text(money);}
+       else{$('#Totalmoney').text(0);$("#orders").hide();}
+    })
+
+   //plus button work..
+    $('ul').on('click', 'button.plus', function(e){
+        e.stopPropagation();
+       var plus_id = this.id.slice(4, ).match(/(\d+)/)[0];
+       var food_id = 'addpk'+ plus_id;
+
+
+       var objects= JSON.parse(localStorage.getItem(food_id));
+            item_no = objects.qty + 1;
+            objects.qty = item_no;
+           localStorage.setItem(food_id, JSON.stringify(objects));
+       if (item_no == 0){
+           var li_id = '#food' + plus_id;
+           document.getElementById('addpk'+ plus_id+'s').innerHTML = "<button  class=' btn btn-primary  text-success btn-sm' >ADD</button>"
+           localStorage.removeItem(food_id);
+            $(li_id).hide(100);
+       }
+       else{
+            document.getElementById('value'+ plus_id).innerHTML = item_no;
+            var foods=Object.keys(localStorage);
+            document.getElementById('list').innerHTML='';
+            var money = 0;
+            for (var food=0; food<foods.length; food++){
+                    var number=foods[food].match(/(\d+)/)[0];
+
+                    keys_info = JSON.parse(localStorage.getItem(foods[food]));
+                    money += Number(keys_info.qty)* Number(keys_info.price);
+                    name_list = `<li class='food' id='food${number}'><div class=' name col-sm-8'>${keys_info.name}</div> <div class='buttons'>  <button class='btn text-success border-success btn-sm minus' id= 'minus${number}s' >-</button><span class='span bg-success' id='value${number}'> ${keys_info.qty} </span><button class='btn text-success border-success btn-sm plus' id= 'plus${number}s' >+</button></div><span class='spans'>${keys_info.price}</li>`
+
+                    document.getElementById('list').innerHTML += name_list;
+
+                    }
+                $('#Totalmoney').text(money);
+       }
+
+})
+
+$('#confirm').click(function(){
+
+    let food = Object.keys(localStorage) || 0;
+    if (food != 0){
+
+        var keys_info=[];
+        for(var i=0; i< food.length; i++){
+           var obs = JSON.parse(localStorage.getItem(food[i]));
+            keys_info.push(obs.qty)
+        }
+        $('#orderquentity').val(JSON.stringify(keys_info))
+        $('#orderitems').val(JSON.stringify(food))
+    }
+    else{
+        alert('please add some foods.')
+    }
+})
+
+        $(window).scroll(function(e){ 
+            var el = $('.fixedElement'); 
+            var le = $('.cousin');
+            var isPositionFixed = (el.css('position') == 'fixed');
+            
+            if ($(this).scrollTop() >100 && !isPositionFixed){ 
+                el.css({'position': 'fixed', 'top': '0px','left':'71%' });
+                le.css({'position' : 'relative', 'right': '12%'});
+            }
+            if ($(this).scrollTop() < 100 && isPositionFixed){
+                el.css({'position': 'relative', 'top': '0px', 'left': '0'}); 
+                le.css({'position' : 'relative', 'right': '0'})
+            } 
+        });
+    })
+
+$("#orders").hide();
+
+localStorage.clear()
+
+</script>
+{% endblock %}

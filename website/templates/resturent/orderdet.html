@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>order</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+   {% load static %}
+    <link rel='stylesheet' type='text/css' href="{% static 'restaurent/orderdet.css' %}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+</head>
+<body>
+you are here ..
+{% for details in allinfo%}
+    <div>
+    <p>Order id= {{details.order_id.id}}</p> 
+    <img src="{{ details.food_id.image.url }}" width="200" height="100">
+   <p> Food name= {{ details.food_id.foods_name }}</p>
+    <p>total_price={{ details.order_id.total_price }}</p>
+
+
+
+    </div>
+{% endfor %}
+</body>
+</html>

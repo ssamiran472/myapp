@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <title>{% block title%}home{% endblock title %}</title>
+    <!--bootstrap link-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <!-- font awsome link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+   {% load static %}
+ <link rel="stylesheet" type="text/css" href="{% static 'restaurent/home.css' %}">
+<link rel='stylesheet' type="text/css" href="{% static 'restaurent/get_order.css'%}">
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<style>
+{% block head_css %}{% endblock head_css %}
+</style>
+</head>
+<body>
+      <!--navbar degine start here. -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark text-light">
+        <h3 class="navbar-brand" href="#"><i>Last Minute Labor</i></h3>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <a class="navbar-brand notification" href="{% url 'all_orders' %}">
+          <span class='pos'>All Orders</span>
+          <span id='div1' class="badge">{{ order_count }}</span>
+          </a>
+         
+          <script>
+            var notification_count = $('#div1').text()
+            if (notification_count =='0'){
+                $('#div1').hide();
+            }
+          
+          </script>
+          <a href='{% url "go_order_page" %}' class='navbar-brand'>Check Order</a>     
+         
+          <div class="dropdown" style="margin-left: 60%">
+              <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-user-circle" style="font-size:20px;"></i>   {{ user.first_name }}
+              </a>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                  <a class="dropdown-item" href="#">Chage Password</a>
+
+                  <a class="dropdown-item" href="{% url 'logout' %}">Log out</a>
+              </div>
+          </div>
+        </div>
+    </nav>
+    
+{% block body %}{% endblock %}
+
+
+</body>
+</html>

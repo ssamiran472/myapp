@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title%}Payment Stautus {% endblock title%}
+{% block head_css %}
+
+{% endblock head_css %}
+
+{% block body %}
+
+<div class="container">
+
+    <div class="col my-4">
+
+        <h2>Payment status regarding your order Id {{response.ORDERID}}</h2>
+        {% if response.RESPCODE == '01' %}
+        ORDER SUCCESS
+        {% else %}
+        ORDER FAILURE
+        {% endif%}
+
+    </div>
+    go to <a href="{% url 'home' %}">home</a> or go to <a href="{%  url 'orderhistory' %}">order history</a>
+
+</div>
+
+
+
+<script>
+</script>
+{% endblock %}
